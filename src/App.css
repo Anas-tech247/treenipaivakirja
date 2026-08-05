@@ -1,0 +1,151 @@
+/* Sovelluksen pääalue */
+.app {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f8f8f8;
+}
+
+/* Pääotsikko */
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #222;
+}
+/* Alaotsikot */
+h2 {
+  margin-top: 20px;
+  color: #333;
+}
+
+/* Lomakkeen asettelu */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Kenttien otsikot */
+label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Syöttökenttien ulkoasu */
+input {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Painikkeen ulkoasu */
+button {
+  margin-top: 15px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* Erotinviiva lomakkeen ja treenilistan väliin */
+hr {
+  margin: 30px 0;
+}
+.workout-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #ffffff;
+}
+.workout-form {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background-color: #ffffff;
+}
+.edit-button {
+  padding: 10px 16px;
+  margin-right: 8px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+.delete-button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+.edit-button:hover {
+  background-color: #e0e0e0;
+}
+
+.delete-button:hover {
+   background-color: #fbe9e7;
+}
+.submit-button {
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  background-color: #333;
+  color: white;
+  border: none;
+  }
+.submit-button:hover {
+  background-color: #555;
+}
+.cancel-button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+   width: 100%;
+   border: 1px solid #ccc;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+.form-input:focus {
+  outline: none;
+  border: 2px solid #888;
+}
+.form-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+@media (max-width: 600px) {
+  .app {
+    margin: 0 auto;
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+}
+.workout-form {
+  padding: 16px;
+}
+.workout-card {
+  padding: 12px;
+}
+.edit-button,
+.delete-button {
+  padding: 10px 12px;
+}
