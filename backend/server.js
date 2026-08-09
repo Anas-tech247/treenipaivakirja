@@ -1,8 +1,20 @@
 // Otetaan Express käyttöön
 const express = require("express");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 // Luodaan Express-sovellus
 const app = express();
+// Tarkistetaan, että käytössä on uusi MongoDB-yhteysosoite
+console.log(
+  "Käytetäänkö tavallista MongoDB-osoitetta:",
+  process.env.MONGO_URI?.startsWith("mongodb://")
+);
+
+// Yhdistetään MongoDB-tietokantaan
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB yhdistetty"))
+  .catch((error) => console.log("MongoDB yhteysvirhe:", error));
 // Sallitaan JSON-muotoisen datan vastaanottaminen
 app.use(express.json());
 // Väliaikainen lista treeneille
