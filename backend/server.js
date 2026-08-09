@@ -2,6 +2,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
+// Otetaan Workout-malli käyttöön
+const Workout = require("./models/Workout");
 
 // Luodaan Express-sovellus
 const app = express();
@@ -29,21 +31,20 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Palvelin käynnissä portissa ${PORT}`);
 });
-// Palauttaa kaikki treenit
-app.get("/api/workouts", (req, res) => {
+// Haetaan kaikki treenit MongoDB-tietokannasta
+app.get("/api/workouts", async (req, res) => {
+  const workouts = await Workout.find();
+
   res.json(workouts);
 });
-// Vastaanotetaan uusi treeni
-app.post("/api/workouts", (req, res) => {
+// Vastaanotetaan uusi treeni ja tallennetaan se tietokantaan
+app.post("/api/workouts", async (req, res) => {
 
-  // Luodaan uudelle treenille oma ID ja otetaan mukaan lähetetyt tiedot
-  const newWorkout = {
-    id: Date.now(),
-    ...req.body
-  };
+ // Luodaan uusi treeni Workout-mallin avulla
+const newWorkout = new Workout(req.body);
 
-  // Lisätään uusi treeni workouts-listaan
-  workouts.push(newWorkout);
+// Tallennetaan treeni MongoDB-tietokantaan
+await newWorkout.save();
 
   // Näytetään lisätty treeni terminaalissa
   console.log(newWorkout);
@@ -51,28 +52,26 @@ app.post("/api/workouts", (req, res) => {
   // Palautetaan lisätty treeni vastauksena
   res.json(newWorkout);
 });
-// Poistetaan treeni ID:n perusteella
-app.delete("/api/workouts/:id", (req, res) => {
 
-  // Otetaan poistettavan treenin ID osoitteesta
-  const id = Number(req.params.id);
+// Poistetaan treeni MongoDB:stä ID:n perusteella
+app.delete("/api/workouts/:id", async (req, res) => {
 
-  // Poistetaan listasta treeni, jolla on sama ID
-  workouts = workouts.filter(workout => workout.id !== id);
+ // Etsitään ja poistetaan treeni MongoDB:stä ID:n perusteella
+const deletedWorkout = await Workout.findByIdAndDelete(req.params.id);
 
   // Lähetetään vastaus onnistuneesta poistosta
   res.json({ message: "Treeni poistettu" });
 });
-// Muokataan treeniä ID:n perusteella
-app.put("/api/workouts/:id", (req, res) => {
-
-  // Otetaan muokattavan treenin ID osoitteesta
-  const id = Number(req.params.id);
-
-  // Etsitään muokattavan treenin paikka listasta
-  const workoutIndex = workouts.findIndex(
-    workout => workout.id === id
-  );
+// Muokataan treeniä MongoDB:n ID:n perusteella
+app.put("/api/workouts/:id", async (req, res) => {
+ // Etsitään treeni ID:n perusteella ja päivitetään sen tiedot
+const updatedWorkout = await Workout.findByIdAndUpdate(
+  req.params.id,
+  req.body,
+  { new: true }
+);
+// Palautetaan päivitetty treeni
+res.json(updatedWorkout);
 
   // Päivitetään treenin tiedot
   workouts[workoutIndex] = {
