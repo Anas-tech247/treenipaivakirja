@@ -1,4 +1,5 @@
-import { useState } from "react";
+// Otetaan käyttöön Reactin useState ja useEffect
+import { useState, useEffect } from "react";
 import "./App.css"; // Tuodaan App-komponentin tyylit
 
 function App() {
@@ -11,54 +12,87 @@ function App() {
   // Tallennetaan treenin kesto Reactin tilaan
   const [duration, setDuration] = useState("");
 
-  // Tallennetaan kaikki lisätyt treenit Reactin tilaan
-  const [workouts, setWorkouts] = useState([]);
+ // Tallennetaan tietokannasta haetut treenit listaan
+const [workouts, setWorkouts] = useState([]);
 
   // Tallennetaan muokattavan treenin indeksi
   const [editIndex, setEditIndex] = useState(null);
 
+ // Haetaan treenit backendistä, kun sivu avataan
+useEffect(() => {
+
+  // Lähetetään GET-pyyntö backendille
+  fetch("http://localhost:3000/api/workouts")
+  // Muutetaan backendin vastaus JSON-muotoon
+.then((response) => response.json())
+// Tallennetaan haetut treenit workouts-listaan
+.then((data) => setWorkouts(data));
+
+}, []);
+
   // Käsitellään lomakkeen lähetys
-  function handleSubmit(event) {
-    // Estetään sivun uudelleenlatautuminen
-    event.preventDefault();
-    // Estetään tyhjän treeninimen tallentaminen
+function handleSubmit(event) {
+  // Estetään sivun uudelleenlatautuminen
+  event.preventDefault();
+
+  // Estetään tyhjän treeninimen tallentaminen
   if (name.trim() === "") {
     return;
   }
 
-    // Luodaan uusi treeni-olio lomakkeen tiedoista
-    const newWorkout = {
-      name,
-      date,
-      duration,
-    };
+  // Muodostetaan lomakkeen tiedoista uusi treeni
+  const newWorkout = {
+    name: name,
+    date: date,
+    duration: Number(duration)
+  };
 
-    // Tarkistetaan, lisätäänkö uusi treeni vai muokataanko vanhaa
-    if (editIndex === null) {
-      // Lisätään uusi treeni
-      setWorkouts([...workouts, newWorkout]);
-    } else {
-      // Tehdään kopio treenilistasta
-      const updatedWorkouts = [...workouts];
+  // Tarkistetaan, lisätäänkö uusi treeni vai muokataanko vanhaa
+  if (editIndex === null) {
+    // Lähetetään uusi treeni backend API:lle
+    fetch("http://localhost:3000/api/workouts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newWorkout)
+    });
 
-      // Korvataan muokattava treeni uusilla tiedoilla
-      updatedWorkouts[editIndex] = newWorkout;
+    // Lisätään uusi treeni Reactin listaan
+    setWorkouts([...workouts, newWorkout]);
 
-      // Päivitetään treenilista
-      setWorkouts(updatedWorkouts);
+  } else {
+    // Haetaan muokattavan treenin MongoDB-id
+   const workoutId = workouts[editIndex]._id;
+   // Lähetetään muokatut treenitiedot backendille
+   fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
+   method: "PUT",
+   headers: {
+    "Content-Type": "application/json"
+   },
+   body: JSON.stringify(newWorkout)
+   });
+    // Tehdään kopio treenilistasta
+    const updatedWorkouts = [...workouts];
 
-      // Lopetetaan muokkaustila
-      setEditIndex(null);
-    }
+    // Korvataan muokattava treeni uusilla tiedoilla
+    updatedWorkouts[editIndex] = newWorkout;
 
-    // Tulostetaan treeni konsoliin testausta varten
-    console.log(newWorkout);
+    // Päivitetään treenilista
+    setWorkouts(updatedWorkouts);
 
-    // Tyhjennetään lomakkeen kentät
-    setName("");
-    setDate("");
-    setDuration("");
+    // Lopetetaan muokkaustila
+    setEditIndex(null);
   }
+
+  // Tulostetaan treeni konsoliin testausta varten
+  console.log(newWorkout);
+
+  // Tyhjennetään lomakkeen kentät
+  setName("");
+  setDate("");
+  setDuration("");
+}
 
   // Peruutetaan treenin muokkaaminen
   function cancelEdit() {
@@ -102,6 +136,15 @@ function App() {
       <h2>
         {editIndex === null ? "Lisää uusi treeni" : "Muokkaa treeniä"}
       </h2>
+
+      {/* Näytetään backendistä haetut treenit */}
+    {workouts.map((workout) => (
+     <div key={workout._id}>
+    <p>{workout.name}</p>
+    <p>{workout.date}</p>
+    <p>{workout.duration} min</p>
+    </div>
+     ))}
 
       <form onSubmit={handleSubmit} className="workout-form">
         <label htmlFor="name" className="form-label">

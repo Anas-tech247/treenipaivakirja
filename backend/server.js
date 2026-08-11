@@ -4,9 +4,13 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 // Otetaan Workout-malli käyttöön
 const Workout = require("./models/Workout");
+// Otetaan CORS käyttöön
+const cors = require("cors");
 
 // Luodaan Express-sovellus
 const app = express();
+// Sallitaan React-frontendin yhteydet backendiin
+app.use(cors());
 // Tarkistetaan, että käytössä on uusi MongoDB-yhteysosoite
 console.log(
   "Käytetäänkö tavallista MongoDB-osoitetta:",
