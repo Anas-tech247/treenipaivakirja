@@ -5,6 +5,8 @@ const workoutSchema = new mongoose.Schema({
   name: String,
   date: String,
   duration: Number,
+  // Tallennetaan tieto siitä, kenelle treeni kuuluu
+user: String,
 });
 // Luodaan Workout-malli treenien käsittelyä varten
 const Workout = mongoose.model("Workout", workoutSchema);

@@ -5,6 +5,8 @@ import "./App.css"; // Tuodaan App-komponentin tyylit
 function App() {
   // Tallennetaan treenin nimi Reactin tilaan
   const [name, setName] = useState("");
+  // Tallennetaan valittu käyttäjä
+const [selectedUser, setSelectedUser] = useState(null);
 
   // Tallennetaan treenin päivämäärä Reactin tilaan
   const [date, setDate] = useState("");
@@ -42,11 +44,13 @@ function handleSubmit(event) {
 
   // Muodostetaan lomakkeen tiedoista uusi treeni
   const newWorkout = {
-    name: name,
-    date: date,
-    duration: Number(duration)
-  };
+  name: name,
+  date: date,
+  duration: Number(duration),
 
+  // Tallennetaan myös valittu käyttäjä
+  user: selectedUser
+};
   // Tarkistetaan, lisätäänkö uusi treeni vai muokataanko vanhaa
   if (editIndex === null) {
     // Lähetetään uusi treeni backend API:lle
@@ -104,6 +108,15 @@ function handleSubmit(event) {
 
   // Poistetaan valittu treeni workouts-taulukosta
   function deleteWorkout(indexToDelete) {
+    // Haetaan poistettava treeni
+const workoutToDelete = workouts[indexToDelete];
+
+// Haetaan poistettavan treenin MongoDB-id
+const workoutId = workoutToDelete._id;
+// Lähetetään DELETE-pyyntö backendille
+fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
+  method: "DELETE"
+});
     // Luodaan uusi taulukko ilman poistettavaa treeniä
     const updatedWorkouts = workouts.filter(
       (workout, index) => index !== indexToDelete
@@ -127,10 +140,33 @@ function handleSubmit(event) {
     setEditIndex(index);
   }
 
+  // Näytetään käyttäjän valinta, jos käyttäjää ei ole vielä valittu
+if (selectedUser === null) {
+  return (
+    <div className="app">
+      <h1>Valitse käyttäjä</h1>
+
+      <button onClick={() => setSelectedUser("Käyttäjä 1")}>
+        Käyttäjä 1
+      </button>
+
+      <button onClick={() => setSelectedUser("Käyttäjä 2")}>
+        Käyttäjä 2
+      </button>
+    </div>
+  );
+}
   return (
     <div className="app">
       {/* Pääotsikko */}
       <h1>Treenipäiväkirja</h1>
+      {/* Palataan käyttäjän valintanäkymään */}
+    <button
+  type="button"
+  onClick={() => setSelectedUser(null)}
+  >
+  Vaihda käyttäjää
+  </button>
 
       {/* Lomakkeen otsikko muuttuu muokkaustilan mukaan */}
       <h2>
@@ -138,7 +174,10 @@ function handleSubmit(event) {
       </h2>
 
       {/* Näytetään backendistä haetut treenit */}
-    {workouts.map((workout) => (
+    {/* Näytetään vain valitun käyttäjän treenit */}
+     {workouts
+    .filter((workout) => workout.user === selectedUser)
+     .map((workout) => (
      <div key={workout._id}>
     <p>{workout.name}</p>
     <p>{workout.date}</p>
@@ -205,9 +244,11 @@ function handleSubmit(event) {
 
       {/* Näytetään lisätyt treenit */}
       <h2>Lisätyt treenit</h2>
-
-      {workouts.map((workout, index) => (
-  <div key={index} className="workout-card">
+      {/* Näytetään vain valitun käyttäjän omat treenit */}
+        {workouts
+        .filter((workout) => workout.user === selectedUser)
+        .map((workout, index) => (
+        <div key={index} className="workout-card">
           <p>Nimi: {workout.name}</p>
           <p>Päivämäärä: {workout.date}</p>
           <p>Kesto: {workout.duration} min</p>
