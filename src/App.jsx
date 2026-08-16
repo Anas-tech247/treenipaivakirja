@@ -40,10 +40,10 @@ function handleSubmit(event) {
   // Estetään sivun uudelleenlatautuminen
   event.preventDefault();
 
-  // Estetään tyhjän treeninimen tallentaminen
-  if (name.trim() === "") {
-    return;
-  }
+// Estetään tyhjän treeninimen tallentaminen
+if (name.trim() === "") {
+  return;
+}
 // Muodostetaan lomakkeen tiedoista uusi treeni
 const newWorkout = {
   name: name,
@@ -56,51 +56,69 @@ const newWorkout = {
   // Lisätään muistiinpanot treenin tietoihin
   notes: notes
 };
-  // Tarkistetaan, lisätäänkö uusi treeni vai muokataanko vanhaa
-  if (editIndex === null) {
-    // Lähetetään uusi treeni backend API:lle
-    fetch("http://localhost:3000/api/workouts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(newWorkout)
+ // Tarkistetaan, lisätäänkö uusi treeni vai muokataanko vanhaa
+if (editIndex === null) {
+
+  // Lähetetään uusi treeni backend API:lle
+  fetch("http://localhost:3000/api/workouts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(newWorkout)
+  })
+    .then((response) => response.json())
+    .then((savedWorkout) => {
+      // Lisätään treeni Reactin listaan vasta onnistuneen tallennuksen jälkeen
+      setWorkouts([...workouts, savedWorkout]);
+
+      // Tyhjennetään lomake vasta onnistuneen tallennuksen jälkeen
+      setName("");
+      setDate("");
+      setDuration("");
+      setNotes("");
+    })
+    .catch((error) => {
+      // Näytetään virhe konsolissa, jos backendiin ei saada yhteyttä
+      console.error("Treenin tallentaminen epäonnistui:", error);
     });
 
-    // Lisätään uusi treeni Reactin listaan
-    setWorkouts([...workouts, newWorkout]);
+} else {
+  // Haetaan muokattavan treenin MongoDB-id
+  const workoutId = workouts[editIndex]._id;
 
-  } else {
-    // Haetaan muokattavan treenin MongoDB-id
-   const workoutId = workouts[editIndex]._id;
-   // Lähetetään muokatut treenitiedot backendille
-   fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
-   method: "PUT",
-   headers: {
-    "Content-Type": "application/json"
-   },
-   body: JSON.stringify(newWorkout)
-   });
-    // Tehdään kopio treenilistasta
-    const updatedWorkouts = [...workouts];
+  // Lähetetään muokatut treenitiedot backendille
+  fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(newWorkout)
+  });
 
-    // Korvataan muokattava treeni uusilla tiedoilla
-    updatedWorkouts[editIndex] = newWorkout;
+  // Tehdään kopio treenilistasta
+  const updatedWorkouts = [...workouts];
 
-    // Päivitetään treenilista
-    setWorkouts(updatedWorkouts);
+  // Korvataan muokattava treeni uusilla tiedoilla
+  updatedWorkouts[editIndex] = newWorkout;
 
-    // Lopetetaan muokkaustila
-    setEditIndex(null);
-  }
+  // Päivitetään treenilista
+  setWorkouts(updatedWorkouts);
 
-  // Tulostetaan treeni konsoliin testausta varten
-  console.log(newWorkout);
+  // Lopetetaan muokkaustila
+  setEditIndex(null);
 
-  // Tyhjennetään lomakkeen kentät
+  // Tyhjennetään lomake muokkauksen jälkeen
   setName("");
   setDate("");
   setDuration("");
+  setNotes("");
+}
+
+// Tulostetaan treeni konsoliin testausta varten
+console.log(newWorkout);
+
+
 }
 
   // Peruutetaan treenin muokkaaminen
@@ -109,6 +127,7 @@ const newWorkout = {
     setName("");
     setDate("");
     setDuration("");
+    setNotes("");
   }
 
   // Poistetaan valittu treeni workouts-taulukosta
@@ -147,17 +166,24 @@ fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
     setEditIndex(index);
   }
 
-  // Näytetään käyttäjän valinta, jos käyttäjää ei ole vielä valittu
+ // Näytetään käyttäjän valinta, jos käyttäjää ei ole vielä valittu
 if (selectedUser === null) {
   return (
     <div className="app">
-      <h1>Valitse käyttäjä</h1>
+      <h1>Treenipäiväkirja</h1>
+      <h2>Valitse käyttäjä</h2>
 
-      <button onClick={() => setSelectedUser("Käyttäjä 1")}>
+      <button
+        className="user-button"
+        onClick={() => setSelectedUser("Käyttäjä 1")}
+      >
         Käyttäjä 1
       </button>
 
-      <button onClick={() => setSelectedUser("Käyttäjä 2")}>
+      <button
+        className="user-button"
+        onClick={() => setSelectedUser("Käyttäjä 2")}
+      >
         Käyttäjä 2
       </button>
     </div>
@@ -170,6 +196,7 @@ if (selectedUser === null) {
       {/* Palataan käyttäjän valintanäkymään */}
     <button
   type="button"
+  className="change-user-button"
   onClick={() => setSelectedUser(null)}
   >
   Vaihda käyttäjää
@@ -182,7 +209,6 @@ if (selectedUser === null) {
 
       {/* Näytetään backendistä haetut treenit */}
     {/* Näytetään vain valitun käyttäjän treenit */}
-   {/* Näytetään vain valitun käyttäjän treenit */}
 {workouts
   .filter((workout) => workout.user === selectedUser)
   .map((workout) => (
@@ -192,7 +218,7 @@ if (selectedUser === null) {
       <p>{workout.duration} min</p>
 
       {/* Näytetään treenin muistiinpanot */}
-      <p>{workout.notes}</p>
+      <p>Muistiinpanot: {workout.notes}</p>
     </div>
   ))}
 
@@ -273,6 +299,8 @@ if (selectedUser === null) {
           <p>Nimi: {workout.name}</p>
           <p>Päivämäärä: {workout.date}</p>
           <p>Kesto: {workout.duration} min</p>
+          {/* Näytetään treenin muistiinpanot */}
+          <p>Muistiinpanot: {workout.notes}</p>
 
          {/* Painike treenin muokkaamiseen */}
        <button

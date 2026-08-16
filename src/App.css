@@ -142,10 +142,74 @@ hr {
 .workout-form {
   padding: 16px;
 }
+/* Tallennetun treenin kortti */
 .workout-card {
-  padding: 12px;
+  padding: 20px;
+  margin: 15px 0;
+
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+
+  text-align: center;
 }
-.edit-button,
+/* Muokkaa treeniä -painike */
+.edit-button {
+  padding: 10px 16px;
+  margin-right: 10px;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  background-color: white;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+/* Poista treeni -painike */
 .delete-button {
-  padding: 10px 12px;
+  padding: 10px 16px;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background-color: white;
+  color: #dc2626;
+  cursor: pointer;
+}
+/* Käyttäjän valintapainikkeet */
+.user-button {
+  display: block;
+  width: 280px;
+  padding: 25px;
+  margin: 15px auto;
+
+  font-size: 20px;
+  font-weight: bold;
+
+  background-color: white;
+  border: 2px solid #2563eb;
+  border-radius: 12px;
+
+  cursor: pointer;
+}
+/* Käyttäjäpainikkeen tyyli, kun hiiri viedään sen päälle */
+.user-button:hover {
+  background-color: #2563eb;
+  color: white;
+}
+/* Vaihda käyttäjää -painike */
+.change-user-button {
+  padding: 10px 16px;
+  margin-bottom: 20px;
+
+  font-size: 16px;
+
+  background-color: white;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  color: #2563eb;
+
+  cursor: pointer;
+}
+/* Vaihda käyttäjää -painikkeen tyyli, kun hiiri viedään sen päälle */
+.change-user-button:hover {
+  background-color: #2563eb;
+  color: white;
 }
