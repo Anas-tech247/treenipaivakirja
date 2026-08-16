@@ -14,6 +14,9 @@ const [selectedUser, setSelectedUser] = useState(null);
   // Tallennetaan treenin kesto Reactin tilaan
   const [duration, setDuration] = useState("");
 
+  // Tallennetaan treenin muistiinpanot Reactin tilaan
+   const [notes, setNotes] = useState("");
+
  // Tallennetaan tietokannasta haetut treenit listaan
 const [workouts, setWorkouts] = useState([]);
 
@@ -41,15 +44,17 @@ function handleSubmit(event) {
   if (name.trim() === "") {
     return;
   }
-
-  // Muodostetaan lomakkeen tiedoista uusi treeni
-  const newWorkout = {
+// Muodostetaan lomakkeen tiedoista uusi treeni
+const newWorkout = {
   name: name,
   date: date,
   duration: Number(duration),
 
   // Tallennetaan myös valittu käyttäjä
-  user: selectedUser
+  user: selectedUser,
+
+  // Lisätään muistiinpanot treenin tietoihin
+  notes: notes
 };
   // Tarkistetaan, lisätäänkö uusi treeni vai muokataanko vanhaa
   if (editIndex === null) {
@@ -135,6 +140,8 @@ fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
     setName(workoutToEdit.name);
     setDate(workoutToEdit.date);
     setDuration(workoutToEdit.duration);
+    // Siirretään myös muistiinpano lomakkeeseen
+    setNotes(workoutToEdit.notes || "");
 
     // Tallennetaan muokattavan treenin indeksi
     setEditIndex(index);
@@ -175,15 +182,19 @@ if (selectedUser === null) {
 
       {/* Näytetään backendistä haetut treenit */}
     {/* Näytetään vain valitun käyttäjän treenit */}
-     {workouts
-    .filter((workout) => workout.user === selectedUser)
-     .map((workout) => (
-     <div key={workout._id}>
-    <p>{workout.name}</p>
-    <p>{workout.date}</p>
-    <p>{workout.duration} min</p>
+   {/* Näytetään vain valitun käyttäjän treenit */}
+{workouts
+  .filter((workout) => workout.user === selectedUser)
+  .map((workout) => (
+    <div key={workout._id}>
+      <p>{workout.name}</p>
+      <p>{workout.date}</p>
+      <p>{workout.duration} min</p>
+
+      {/* Näytetään treenin muistiinpanot */}
+      <p>{workout.notes}</p>
     </div>
-     ))}
+  ))}
 
       <form onSubmit={handleSubmit} className="workout-form">
         <label htmlFor="name" className="form-label">
@@ -222,6 +233,16 @@ if (selectedUser === null) {
           min="1"
           required
         />
+        {/* Muistiinpanot treenistä */}
+        <label htmlFor="notes">Muistiinpanot</label>
+
+       <textarea
+        id="notes"
+         className="form-input"
+        placeholder="Esim. hyvä treeni, raskaat sarjat..."
+        value={notes}
+       onChange={(event) => setNotes(event.target.value)}
+       />
 
         {/* Lisätään uusi treeni tai tallennetaan muokkaus */}
         <button type="submit" className="submit-button">
