@@ -169,7 +169,7 @@ fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
  // Näytetään käyttäjän valinta, jos käyttäjää ei ole vielä valittu
 if (selectedUser === null) {
   return (
-    <div className="app">
+    <div className="app user-selection">
       <h1>Treenipäiväkirja</h1>
       <h2>Valitse käyttäjä</h2>
 
@@ -207,20 +207,7 @@ if (selectedUser === null) {
         {editIndex === null ? "Lisää uusi treeni" : "Muokkaa treeniä"}
       </h2>
 
-      {/* Näytetään backendistä haetut treenit */}
-    {/* Näytetään vain valitun käyttäjän treenit */}
-{workouts
-  .filter((workout) => workout.user === selectedUser)
-  .map((workout) => (
-    <div key={workout._id}>
-      <p>{workout.name}</p>
-      <p>{workout.date}</p>
-      <p>{workout.duration} min</p>
-
-      {/* Näytetään treenin muistiinpanot */}
-      <p>Muistiinpanot: {workout.notes}</p>
-    </div>
-  ))}
+      
 
       <form onSubmit={handleSubmit} className="workout-form">
         <label htmlFor="name" className="form-label">
@@ -289,38 +276,44 @@ if (selectedUser === null) {
 
       <hr />
 
-      {/* Näytetään lisätyt treenit */}
-      <h2>Lisätyt treenit</h2>
-      {/* Näytetään vain valitun käyttäjän omat treenit */}
-        {workouts
-        .filter((workout) => workout.user === selectedUser)
-        .map((workout, index) => (
+     {/* Näytetään lisätyt treenit vain silloin, kun treeniä ei muokata */}
+{editIndex === null && (
+  <>
+    <h2>Lisätyt treenit</h2>
+
+    {/* Näytetään vain valitun käyttäjän omat treenit */}
+    {workouts
+      .filter((workout) => workout.user === selectedUser)
+      .map((workout, index) => (
         <div key={index} className="workout-card">
           <p>Nimi: {workout.name}</p>
           <p>Päivämäärä: {workout.date}</p>
           <p>Kesto: {workout.duration} min</p>
+
           {/* Näytetään treenin muistiinpanot */}
           <p>Muistiinpanot: {workout.notes}</p>
 
-         {/* Painike treenin muokkaamiseen */}
-       <button
-          type="button"
-           className="edit-button"
-         onClick={() => editWorkout(index)}
-        >
-         Muokkaa treeniä
-       </button>
+          {/* Painike treenin muokkaamiseen */}
+          <button
+            type="button"
+            className="edit-button"
+            onClick={() => editWorkout(index)}
+          >
+            Muokkaa treeniä
+          </button>
 
-{/* Painike treenin poistamiseen */}
-<button
-  type="button"
-  className="delete-button"
-  onClick={() => deleteWorkout(index)}
->
-  Poista treeni
-</button>
+          {/* Painike treenin poistamiseen */}
+          <button
+            type="button"
+            className="delete-button"
+            onClick={() => deleteWorkout(index)}
+          >
+            Poista treeni
+          </button>
         </div>
       ))}
+  </>
+)}
     </div>
   );
 }
