@@ -77,6 +77,9 @@ if (editIndex === null) {
       setDate("");
       setDuration("");
       setNotes("");
+
+      // Ilmoitetaan käyttäjälle onnistuneesta tallennuksesta
+      alert("Treeni tallennettu onnistuneesti!");
     })
     .catch((error) => {
       // Näytetään virhe konsolissa, jos backendiin ei saada yhteyttä
@@ -130,17 +133,29 @@ console.log(newWorkout);
     setNotes("");
   }
 
-  // Poistetaan valittu treeni workouts-taulukosta
-  function deleteWorkout(indexToDelete) {
-    // Haetaan poistettava treeni
-const workoutToDelete = workouts[indexToDelete];
+ // Poistetaan valittu treeni workouts-taulukosta
+function deleteWorkout(indexToDelete) {
 
-// Haetaan poistettavan treenin MongoDB-id
-const workoutId = workoutToDelete._id;
-// Lähetetään DELETE-pyyntö backendille
-fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
-  method: "DELETE"
-});
+  // Kysytään käyttäjältä vahvistus ennen poistamista
+  const confirmDelete = window.confirm(
+    "Haluatko varmasti poistaa tämän treenin?"
+  );
+
+  // Jos käyttäjä painaa Peruuta, poistamista ei jatketa
+  if (!confirmDelete) {
+    return;
+  }
+
+  // Haetaan poistettava treeni
+  const workoutToDelete = workouts[indexToDelete];
+
+  // Haetaan poistettavan treenin MongoDB-id
+  const workoutId = workoutToDelete._id;
+
+  // Lähetetään DELETE-pyyntö backendille
+  fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
+    method: "DELETE"
+  });
     // Luodaan uusi taulukko ilman poistettavaa treeniä
     const updatedWorkouts = workouts.filter(
       (workout, index) => index !== indexToDelete
@@ -189,6 +204,10 @@ if (selectedUser === null) {
     </div>
   );
 }
+// Suodatetaan valitun käyttäjän omat treenit
+const userWorkouts = workouts.filter(
+  (workout) => workout.user === selectedUser
+);
   return (
     <div className="app">
       {/* Pääotsikko */}
@@ -277,9 +296,13 @@ if (selectedUser === null) {
       <hr />
 
      {/* Näytetään lisätyt treenit vain silloin, kun treeniä ei muokata */}
-{editIndex === null && (
+   {editIndex === null && (
   <>
     <h2>Lisätyt treenit</h2>
+    {/* Näytetään ilmoitus, jos käyttäjällä ei ole vielä treenejä */}
+   {userWorkouts.length === 0 && (
+  <p>Ei vielä lisättyjä treenejä.</p>
+   )}
 
     {/* Näytetään vain valitun käyttäjän omat treenit */}
     {workouts
