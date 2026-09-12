@@ -88,25 +88,25 @@ if (editIndex === null) {
 
 } else {
   // Haetaan muokattavan treenin MongoDB-id
-  const workoutId = workouts[editIndex]._id;
-
+  const workoutId = editIndex;
   // Lähetetään muokatut treenitiedot backendille
-  fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(newWorkout)
-  });
+ fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(newWorkout)
+})
+.then((response) => response.json())
+.then((updatedWorkout) => {
 
-  // Tehdään kopio treenilistasta
-  const updatedWorkouts = [...workouts];
+ // Korvataan oikea treeni MongoDB-id:n perusteella
+const updatedWorkouts = workouts.map((workout) =>
+  workout._id === editIndex ? updatedWorkout : workout
+);
 
-  // Korvataan muokattava treeni uusilla tiedoilla
-  updatedWorkouts[editIndex] = newWorkout;
-
-  // Päivitetään treenilista
-  setWorkouts(updatedWorkouts);
+// Päivitetään treenilista
+setWorkouts(updatedWorkouts);
 
   // Lopetetaan muokkaustila
   setEditIndex(null);
@@ -116,11 +116,12 @@ if (editIndex === null) {
   setDate("");
   setDuration("");
   setNotes("");
-}
+});
+
 
 // Tulostetaan treeni konsoliin testausta varten
 console.log(newWorkout);
-
+}
 
 }
 
@@ -134,7 +135,7 @@ console.log(newWorkout);
   }
 
  // Poistetaan valittu treeni workouts-taulukosta
-function deleteWorkout(indexToDelete) {
+function deleteWorkout(workoutId) {
 
   // Kysytään käyttäjältä vahvistus ennen poistamista
   const confirmDelete = window.confirm(
@@ -146,29 +147,30 @@ function deleteWorkout(indexToDelete) {
     return;
   }
 
-  // Haetaan poistettava treeni
-  const workoutToDelete = workouts[indexToDelete];
-
-  // Haetaan poistettavan treenin MongoDB-id
-  const workoutId = workoutToDelete._id;
-
+  
   // Lähetetään DELETE-pyyntö backendille
   fetch(`http://localhost:3000/api/workouts/${workoutId}`, {
     method: "DELETE"
   });
-    // Luodaan uusi taulukko ilman poistettavaa treeniä
-    const updatedWorkouts = workouts.filter(
-      (workout, index) => index !== indexToDelete
-    );
+   
+   // Luodaan uusi taulukko ilman poistettavaa treeniä
+const updatedWorkouts = workouts.filter(
+  (workout) => workout._id !== workoutId
+);
+
+// Päivitetään treenilista
+setWorkouts(updatedWorkouts);
 
     // Päivitetään treenilista
     setWorkouts(updatedWorkouts);
   }
 
   // Valitaan treeni muokattavaksi
-  function editWorkout(index) {
+  function editWorkout(workoutId) {
     // Haetaan valittu treeni workouts-taulukosta
-    const workoutToEdit = workouts[index];
+   const workoutToEdit = workouts.find(
+  (workout) => workout._id === workoutId
+   );
 
     // Siirretään treenin tiedot lomakkeen kenttiin
     setName(workoutToEdit.name);
@@ -177,14 +179,14 @@ function deleteWorkout(indexToDelete) {
     // Siirretään myös muistiinpano lomakkeeseen
     setNotes(workoutToEdit.notes || "");
 
-    // Tallennetaan muokattavan treenin indeksi
-    setEditIndex(index);
+    // Tallennetaan muokattavan treenin MongoDB-id
+    setEditIndex(workoutId);
   }
 
  // Näytetään käyttäjän valinta, jos käyttäjää ei ole vielä valittu
 if (selectedUser === null) {
   return (
-    <div className="app user-selection">
+    <main className="app user-selection">
       <h1>Treenipäiväkirja</h1>
       <h2>Valitse käyttäjä</h2>
 
@@ -201,7 +203,7 @@ if (selectedUser === null) {
       >
         Käyttäjä 2
       </button>
-    </div>
+    </main>
   );
 }
 // Suodatetaan valitun käyttäjän omat treenit
@@ -209,7 +211,7 @@ const userWorkouts = workouts.filter(
   (workout) => workout.user === selectedUser
 );
   return (
-    <div className="app">
+    <main className="app">
       {/* Pääotsikko */}
       <h1>Treenipäiväkirja</h1>
       {/* Palataan käyttäjän valintanäkymään */}
@@ -320,7 +322,7 @@ const userWorkouts = workouts.filter(
           <button
             type="button"
             className="edit-button"
-            onClick={() => editWorkout(index)}
+            onClick={() => editWorkout(workout._id)}
           >
             Muokkaa treeniä
           </button>
@@ -329,7 +331,7 @@ const userWorkouts = workouts.filter(
           <button
             type="button"
             className="delete-button"
-            onClick={() => deleteWorkout(index)}
+           onClick={() => deleteWorkout(workout._id)}
           >
             Poista treeni
           </button>
@@ -337,7 +339,7 @@ const userWorkouts = workouts.filter(
       ))}
   </>
 )}
-    </div>
+    </main>
   );
 }
 

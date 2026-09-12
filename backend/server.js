@@ -23,8 +23,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((error) => console.log("MongoDB yhteysvirhe:", error));
 // Sallitaan JSON-muotoisen datan vastaanottaminen
 app.use(express.json());
-// Väliaikainen lista treeneille
-let workouts = [];
+
 // Määritetään portti
 const PORT = 3000;
 // Testireitti palvelimen tarkistamiseen
@@ -77,12 +76,5 @@ const updatedWorkout = await Workout.findByIdAndUpdate(
 // Palautetaan päivitetty treeni
 res.json(updatedWorkout);
 
-  // Päivitetään treenin tiedot
-  workouts[workoutIndex] = {
-    ...workouts[workoutIndex],
-    ...req.body
-  };
-
-  // Palautetaan muokattu treeni
-  res.json(workouts[workoutIndex]);
+ 
 });
